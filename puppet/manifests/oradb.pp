@@ -124,7 +124,7 @@ class oradb_11g {
       group_install => 'oinstall',
       group_oper    => 'oper',
       download_dir  => '/install',
-      zip_extract   => false,
+      zip_extract   => true,
      }
 
     oradb::net{ 'config net8':

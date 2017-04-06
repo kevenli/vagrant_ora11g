@@ -20,5 +20,5 @@ oracle_database_service_name: 'test'
 
 oracle_database_sys_password:    'Welcome01'
 oracle_database_system_password: 'Welcome01'
-oradb::module_mountpoint: '/mnt'
+oradb::module_mountpoint: '/vagrant/software'
 
