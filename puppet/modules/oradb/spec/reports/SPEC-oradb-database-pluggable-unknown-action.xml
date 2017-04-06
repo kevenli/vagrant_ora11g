@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="oradb::database_pluggable unknown action" tests="1" time="0.07859" failures="0" errors="0" skipped="0" timestamp="2017-03-29T22:26:05+02:00">
+  <testcase name="oradb::database_pluggable unknown action should raise Puppet::Error with message matching /expects a match for Enum/" time="0.077962">
+  </testcase>
+</testsuite>

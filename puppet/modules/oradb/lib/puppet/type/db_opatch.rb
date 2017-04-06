@@ -1,5 +1,5 @@
 module Puppet
-  newtype(:db_opatch) do
+  Type::newtype(:db_opatch) do
     desc 'This is the Oracle Patch process called OPatch'
 
     newproperty(:ensure) do
@@ -30,7 +30,6 @@ module Puppet
 
         event
       end
-
     end
 
     newparam(:name) do
@@ -82,11 +81,16 @@ module Puppet
       EOT
     end
 
+    newparam(:use_opatchauto_utility) do
+      desc <<-EOT
+        use the opatchauto_utility instead of opatch auto
+      EOT
+    end
+
     newparam(:bundle_sub_patch_id) do
       desc <<-EOT
         One of the Sub patch number of the bundle patch
       EOT
     end
-
   end
 end

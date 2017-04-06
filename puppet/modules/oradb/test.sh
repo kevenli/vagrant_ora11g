@@ -7,8 +7,8 @@ rvm --version
 
 # rvm install ruby-1.8.7
 # rvm use ruby-1.8.7
-rvm install ruby-2.0.0
-rvm use ruby-2.0.0
+rvm install ruby-2.3.1
+rvm use ruby-2.3.1
 
 set -e
 
@@ -24,3 +24,14 @@ bundle exec rake syntax
 bundle exec rake lint
 bundle exec rake ci:setup:rspec spec
 #bundle exec rake spec
+
+# Release the Puppet module, doing a clean, build, tag, push, bump_commit
+rake module:clean
+bundle exec puppet strings generate ./\*\*/*.pp ./lib/puppet/functions/**/*.rb
+
+rake build
+
+rake module:push
+rake module:tag
+rake module:bump_commit  # Bump version and git commit
+

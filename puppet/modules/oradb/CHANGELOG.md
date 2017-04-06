@@ -1,16 +1,147 @@
 # Version updates
 
+## 3.0.7
+- database.pp now also use init_params for dbt templates
+- database.pp set sid with db_name on dbt templates
+- database.pp changed template_variables for dbt templates to a hash
+
+## 3.0.6
+- Support Enterpise manager 13.2.0.0
+- Support EM agent 13.2.0.0
+
+## 3.0.5
+- opatch upgrade fix, emocmrsp is not necessary when version >= 12.2.0.1.5
+- database parameter data_file_destination is required when version = 12.2 plus template and storage_type are defined
+
+## 3.0.4
+- 12.2.0.1 grid support
+
+## 3.0.3
+- added docs
+- added goldengate 12.2.1 for Oracle Database
+- 12.2.0.1 installdb + database + pluggable db support
+- 12.2.0.1 client support
+
+## 3.0.2
+- migrated to puppet 4 functions
+- Fix ASM disk does not exist error during database creation
+
+## 3.0.1
+- Epp template fixes for optional fields on grid, installdb & database.pp
+
+## 3.0.0
+- Puppet 4 new features, removed support for Puppet 3, please use latest version 2.X of oradb
+
+## 2.0.9
+- variables support for dbt templates with parameter template_variables
+- bash_profile also loads bashrc when it exists
+
+## 2.0.8
+- Add opatch_patches structured fact but requires stdlib 4.11
+- new function is_oracle_patch_installed
+- RCU fixes for running as non-root user
+- Resolve idempotence issue which happens when a patch from the same source needs to be applied multiple times
+- dbactions.pp or db_control supports now also mount
+
+## 2.0.7
+- In case of a template, set character parameter for the default database build command. It is being set to AL32UTF8.
+- installasm new 12.1.0.2 storage_option values 'LOCAL_ASM_STORAGE', 'FLEX_ASM_STORAGE', 'CLIENT_ASM_STORAGE', 'FILE_SYSTEM_STORAGE'
+- installasm bash_profile parameter
+- installasm remote_node parameter, ability to execute orainstRoot.sh and root.sh on remode node
+- installdb new 12.1.0.2 database_type values 'EE','SE2'
+- installdb, handling 2 installations of the same oracle database version on the same host
+- installdb, remote_node parameter, ability to execute root.sh on remode node
+- installem_agent option to not manage curl
+- db_control startup in mount status for standby databases
+- database.pp use cluster_nodes for -nodelist parameter
+
+## 2.0.6
+- Seeded database template support
+- oracle_hostname parameter for emagent
+- puppet 4 fixes
+
+## 2.0.5
+- EM agent, Move sysman parameter validation to agentpull block
+- Fix rcu status check, rollback from version 2.0.1
+- ASM service fix for RHEL7
+
+## 2.0.4
+- dbtemplate_12.1.dbt database template should also work for 12.1.0.2
+- db_structure fixes, correct permissions and chown order
+- support for Enterprise Manager 12.1.0.5
+
+## 2.0.3
+- some more strict file permissions
+- rcu allows now more complex passwords
+- allow to change the service name instead of dbora
+- installdb is_rack_one_install option for 12.1.0.2
+- db_control type & dbcontrol manifest supports now also Grid
+- security/permissions fixes with files which can contain passwords
+
+## 2.0.2
+- support the new opatchauto utility instead of opatch auto by use_opatchauto_utility => true
+- support 12.1 CDB with custom database template
+- changed the default oraInventory location when it is not defined
+
+## 2.0.1
+- bash_profile option for database clients
+- rcu 11g fix
+- 12.1.0.2 oracle client template
+- db_listener type refreshonly fix
+
+## 2.0.0
+- All parameters of classes or defines are now in snake case and not in camel case
+
+## 1.0.35
+- Add support for Grid 12.1.0.2 (installasm)
+- Fix unsetted vars in dbora template
+- Added ability to put listener entries in tnsnames.ora
+
+## 1.0.34
+- autostart fix so it also works for Oracle Linux 5
+- rcu prefix compare check fix ( Uppercase )
+- RCU fixes for OIM or OAM 11.1.1.2.3
+- installem em_upload_port parameter type fix
+
+## 1.0.33
+- Small Suse fix for the autostart service
+- new installdb attribute cleanup_installfile
+- option to provide the sys username for RCU
+
+## 1.0.32
+- be able to provide a listener name for starting the oracle listener ( manifest and custom type)
+
+## 1.0.31
+- installasm, stand alone parameter in combination with $grid_type == 'CRS_SWONLY' used as standalone or in RAC
+- installasm, .profile fix for ORACLE_SID in case grid_type = HA_CONFIG -> +ASM or in grid_type = CRS_CONFIG -> +ASM1
+
+## 1.0.30
+- Removed Oracle Home under base check for ASM installations, in CRS_CONFIG or CRS_SWONLY this is not right
+
+## 1.0.29
+- Custom type for oracle db/asm/client/em directory structure instead of using dirtree and some oradb manifests
+
+## 1.0.28
+- fixed database install rsp 12.1.0.2
+- db_listener custom puppet type/provider, listener.pp calls this type
+
+## 1.0.27
+- solaris fix for database.pp and opatch auto
+- puppet_download_mnt_point parameter for database.pp which can be used for own db template
+
 ## 1.0.26
-- Removed createUser functionality in installdb & client, Puppet should do it instead of oradb module
+- Removed create_user functionality in installdb & client, Puppet should do it instead of oradb module
 - Support for 12.1 pluggable database
-- initParams of database.pp now also support a hash besides a comma separated string
+- init_params of database.pp now also support a hash besides a comma separated string
+- Refactored dbstructure so it works with multiple oracle homes
+- Goldengate 12.1.2 now uses dbstructure
 
 ## 1.0.25
 - added extra parameter validation to installdb, installasm and installem_agent
 - opatch fix for opatch bundle zip files which has subfolders in the zip
 - owner of the grid home or oracle home folder fix
 - renamed clusterware parameter of the opatch type to opatch_auto
-- StorageType parameter is now also used in the dbca command when using a database template
+- storage_type parameter is now also used in the dbca command when using a database template
 - Added ASM 11.2 Database template
 
 ## 1.0.24
@@ -56,7 +187,7 @@
 - asm/grid for 12.1.0.1 & installasm fix for Oracle Restart fix, 11.2.0.1 rsp template fix
 
 ## 1.0.15
-- RCU fix for multiple FMW Repositories, installasm fix with zipExtract = false
+- RCU fix for multiple FMW Repositories, installasm fix with zip_extract = false
 
 ## 1.0.14
 - Rename some internal manifest to avoid a conflict with orawls
@@ -65,7 +196,7 @@
 - Oracle Database & Client 12.1.0.2 Support
 
 ## 1.0.11
-- database client fix with remote file, set DBSNMPPASSWORD on a database
+- database client fix with remote file, set db_snmp_password on a database
 
 ## 1.0.10
 - oraInst.loc bug fix, option to skip installdb bash profile
@@ -98,7 +229,7 @@
 - oracle module add##on for user,role and tablespace creation
 
 ## 0.9.9
-- emConfiguration parameter for Database creation
+- em_configuration parameter for Database creation
 
 ## 0.9.7
 - Oracle database 11.2.0.1, 12.1.0.1 client support, refactored installdb,net,goldengate

@@ -1,6 +1,4 @@
-
 Puppet::Type.type(:db_rcu).provide(:db_rcu) do
-
   def self.instances
     []
   end
@@ -14,7 +12,13 @@ Puppet::Type.type(:db_rcu).provide(:db_rcu) do
     # environment = "SQLPLUS_HOME=#{oracle_home}"
     Puppet.debug "rcu statement: #{statement}"
 
-    output = `su - #{user} -c '#{statement}'`
+    # stdin from password file is lost if running as oracle but try to su
+    if Puppet.features.root?
+      output = `su - #{user} -c '#{statement}'`
+    else
+      output = `#{statement}`
+    end
+
     # output = execute statement, :failonfail => true ,:uid => user, :custom_environment => environment
     Puppet.info "RCU result: #{output}"
     result = false
@@ -32,6 +36,7 @@ Puppet::Type.type(:db_rcu).provide(:db_rcu) do
     Puppet.debug 'rcu_status'
 
     oracle_home             = resource[:oracle_home]
+    sys_user                = resource[:sys_user]
     sys_password            = resource[:sys_password]
     user                    = resource[:os_user]
     prefix                  = resource[:name]
@@ -41,7 +46,7 @@ Puppet::Type.type(:db_rcu).provide(:db_rcu) do
     sql = <<-EOS
 set term off echo off pages 0 colsep '|' trimspool on
 spool /tmp/check_rcu_#{prefix}2.txt
-select distinct 'found' from system.schema_version_registry where mrc_name ='#{prefix}';
+select distinct 'found' from system.schema_version_registry where upper(mrc_name) = upper('#{prefix}');
 grant execute on sys.dbms_job to PUBLIC;
 grant execute on sys.dbms_reputil to PUBLIC;
 spool off
@@ -54,11 +59,14 @@ EOS
     FileUtils.chmod(0555, tmpFile.path)
 
     Puppet.debug "rcu for prefix #{prefix} execute SQL"
-    output = `su - #{user} -c 'export ORACLE_HOME=#{oracle_home};LD_LIBRARY_PATH=#{oracle_home}/lib;#{oracle_home}/bin/sqlplus \"sys/#{sys_password}@//#{db_server}/#{db_service} as sysdba\" @#{tmpFile.path}'`
+    output = `su - #{user} -c 'export ORACLE_HOME=#{oracle_home};LD_LIBRARY_PATH=#{oracle_home}/lib #{oracle_home}/bin/sqlplus \"#{sys_user}/#{sys_password}@//#{db_server}/#{db_service} as sysdba\" @#{tmpFile.path}'`
+
+    # output = system('su', '-', user, '-c', 'export', 'ORACLE_HOME=#{oracle_home};LD_LIBRARY_PATH=#{oracle_home}/lib',
+    #                 "#{oracle_home}/bin/sqlplus", " \"#{sys_user}/'#{sys_password}'@//#{db_server}/#{db_service} as sysdba\"", "@#{tmpFile.path}")
     raise ArgumentError, "Error executing puppet code, #{output}" if $? != 0
 
     if FileTest.exists?("/tmp/check_rcu_#{prefix}2.txt")
-      File.open("/tmp/check_rcu_#{prefix}2.txt") do | outputfile|
+      File.open("/tmp/check_rcu_#{prefix}2.txt") do |outputfile|
         outputfile.each_line do |li|
           unless li.nil?
             Puppet.debug "line #{li}"

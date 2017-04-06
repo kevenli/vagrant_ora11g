@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="oradb::is_oracle_patch_installed when opatch_patches fact available when patch is not installed in oracle_home" tests="1" time="0.071032" failures="0" errors="0" skipped="0" timestamp="2017-03-29T22:26:09+02:00">
+  <testcase name="oradb::is_oracle_patch_installed when opatch_patches fact available when patch is not installed in oracle_home should run oradb::is_oracle_patch_installed(&quot;/u01/app/oracle/product/12.1.0/dbhome_1&quot;, &quot;666666&quot;) and return false" time="0.070466">
+  </testcase>
+</testsuite>

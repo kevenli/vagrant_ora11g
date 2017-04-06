@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="oradb::is_oracle_patch_installed with invalid parameters with invalid patch_id" tests="1" time="0.062971" failures="0" errors="0" skipped="0" timestamp="2017-03-29T22:26:10+02:00">
+  <testcase name="oradb::is_oracle_patch_installed with invalid parameters with invalid patch_id should run oradb::is_oracle_patch_installed(&quot;/u01/app/oracle/product/12.1.0/dbhome_1&quot;, 6666) and raise an ArgumentError with the message matching /expects a String value/" time="0.061977">
+  </testcase>
+</testsuite>

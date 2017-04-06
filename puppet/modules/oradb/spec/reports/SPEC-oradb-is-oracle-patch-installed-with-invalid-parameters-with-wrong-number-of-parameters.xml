@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="oradb::is_oracle_patch_installed with invalid parameters with wrong number of parameters" tests="2" time="0.227562" failures="0" errors="0" skipped="0" timestamp="2017-03-29T22:26:09+02:00">
+  <testcase name="oradb::is_oracle_patch_installed with invalid parameters with wrong number of parameters should run oradb::is_oracle_patch_installed() and raise an ArgumentError with the message matching /expects 2 arguments/" time="0.102259">
+  </testcase>
+  <testcase name="oradb::is_oracle_patch_installed with invalid parameters with wrong number of parameters should run oradb::is_oracle_patch_installed(&quot;/u01/app/oracle/product/12.1.0/dbhome_1&quot;) and raise an ArgumentError with the message matching /expects 2 arguments/" time="0.124579">
+  </testcase>
+</testsuite>

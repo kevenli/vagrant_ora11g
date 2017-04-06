@@ -1,63 +1,88 @@
-# == Class: oradb::installdb
 #
-# The databaseType value should contain only one of these choices.
-# EE     : Enterprise Edition
-# SE     : Standard Edition
-# SEONE  : Standard Edition One
+# installdb
 #
+# install Oracle Database
+#
+# @example install Oracle database
+#
+#  oradb::installdb{ 'db_linux-x64':
+#      version                => '11.2.0.4',
+#      file                   => 'p13390677_112040_Linux-x86-64',
+#      database_type          => 'EE',
+#      ora_inventory_dir      => '/app',
+#      oracle_base            => '/app/oracle',
+#      oracle_home            => '/app/oracle/product/11.2/db',
+#      user_base_dir          => '/home',
+#      user                   => 'oracle',
+#      group                  => 'dba',
+#      group_install          => 'oinstall',
+#      group_oper             => 'oper',
+#      download_dir           => '/var/tmp/install',
+#      remote_file            => false,
+#      puppet_download_mnt_point => '/software',
+#  }
+#    
+# @param version Oracle installation version
+# @param file filename of the installation software
+# @param oracle_base full path to the Oracle Base directory
+# @param oracle_home full path to the Oracle Home directory inside Oracle Base
+# @param ora_inventory_dir full path to the Oracle Inventory location directory
+# @param user operating system user
+# @param user_base_dir the location of the base user homes
+# @param group the operating group name for using the oracle software
+# @param group_install the operating group name for the installed software
+# @param download_dir location for installation files used by this module
+# @param bash_profile add a bash profile to the operating user
+# @param puppet_download_mnt_point the location where the installation software is available
+# @param remote_file the installation is remote accessiable or not
+# @param temp_dir location for temporaray file used by the installer
+# @param database_type
+# @param ee_options_selection
+# @param ee_optional_components
+# @param group_oper
+# @param zip_extract
+# @param cluster_nodes
+# @param cleanup_install_files
+# @param is_rack_one_install
+# @param remote_node
 #
 define oradb::installdb(
-  $version                 = undef,
-  $file                    = undef,
-  $databaseType            = 'SE',
-  $oraInventoryDir         = undef,
-  $oracleBase              = undef,
-  $oracleHome              = undef,
-  $eeOptionsSelection      = false,
-  $eeOptionalComponents    = undef, # 'oracle.rdbms.partitioning:11.2.0.4.0,oracle.oraolap:11.2.0.4.0,oracle.rdbms.dm:11.2.0.4.0,oracle.rdbms.dv:11.2.0.4.0,oracle.rdbms.lbac:11.2.0.4.0,oracle.rdbms.rat:11.2.0.4.0'
-  $createUser              = undef,
-  $bashProfile             = true,
-  $user                    = 'oracle',
-  $userBaseDir             = '/home',
-  $group                   = 'dba',
-  $group_install           = 'oinstall',
-  $group_oper              = 'oper',
-  $downloadDir             = '/install',
-  $zipExtract              = true,
-  $puppetDownloadMntPoint  = undef,
-  $remoteFile              = true,
-  $cluster_nodes           = undef,
+  Enum['11.2.0.1','11.2.0.3','11.2.0.4','12.1.0.1','12.1.0.2','12.2.0.1'] $version = undef,
+  String $file                                                                     = undef,
+  Enum['SE', 'EE', 'SEONE'] $database_type                                         = lookup('oradb:installdb:database_type'),
+  Optional[String] $ora_inventory_dir                                              = undef,
+  String $oracle_base                                                              = undef,
+  String $oracle_home                                                              = undef,
+  Boolean $ee_options_selection                                                    = false,
+  Optional[String] $ee_optional_components                                         = undef, # 'oracle.rdbms.partitioning:11.2.0.4.0,oracle.oraolap:11.2.0.4.0,oracle.rdbms.dm:11.2.0.4.0,oracle.rdbms.dv:11.2.0.4.0,oracle.rdbms.lbac:11.2.0.4.0,oracle.rdbms.rat:11.2.0.4.0'
+  Boolean $bash_profile                                                            = true,
+  String $user                                                                     = lookup('oradb::user'),
+  String $user_base_dir                                                            = lookup('oradb::user_base_dir'),
+  String $group                                                                    = lookup('oradb::group'),
+  String $group_install                                                            = lookup('oradb::group_install'),
+  String $group_oper                                                               = lookup('oradb::group_oper'),
+  String $download_dir                                                             = lookup('oradb::download_dir'),
+  Boolean $zip_extract                                                             = true,
+  String $puppet_download_mnt_point                                                = lookup('oradb::module_mountpoint'),
+  Boolean $remote_file                                                             = true,
+  Optional[String] $cluster_nodes                                                  = undef,
+  Boolean $cleanup_install_files                                                   = true,
+  Boolean $is_rack_one_install                                                     = false,
+  String $temp_dir                                                                 = lookup('oradb::tmp_dir'),
+  Optional[String] $remote_node                                                    = undef,   # hostname or ip address
 )
 {
-  if ( $createUser == true ){
-    fail("createUser parameter on installdb ${title} is removed from this oradb module, you need to create the oracle user and its groups yourself")
+  $supported_db_kernels = join( lookup('oradb::kernels'), '|')
+  if ( $::kernel in $supported_db_kernels == false){
+    fail("Unrecognized operating system, please use it on a ${supported_db_kernels} host")
   }
 
-  if ( $createUser == false ){
-    notify {"createUser parameter on installdb ${title} can be removed, createUser feature is removed from this oradb module":}
-  }
-
-  if (!( $version in ['11.2.0.1','12.1.0.1','12.1.0.2','11.2.0.3','11.2.0.4'])){
-    fail('Unrecognized database install version, use 11.2.0.1|11.2.0.3|11.2.0.4|12.1.0.1|12.1.0.1')
-  }
-
-  if ( !($::kernel in ['Linux','SunOS'])){
-    fail('Unrecognized operating system, please use it on a Linux or SunOS host')
-  }
-
-  if ( !($databaseType in ['EE','SE','SEONE'])){
-    fail('Unrecognized database type, please use EE|SE|SEONE')
-  }
-
-  if ( $oracleBase == undef or is_string($oracleBase) == false) {fail('You must specify an oracleBase') }
-  if ( $oracleHome == undef or is_string($oracleHome) == false) {fail('You must specify an oracleHome') }
-
-  if ( $oracleBase in $oracleHome == false ){
-    fail('oracleHome folder should be under the oracleBase folder')
+  if ( $oracle_base in $oracle_home == false ){
+    fail('oracle_home folder should be under the oracle_base folder')
   }
 
   # check if the oracle software already exists
-  $found = oracle_exists( $oracleHome )
+  $found = oradb::oracle_exists( $oracle_home )
 
   if $found == undef {
     $continue = true
@@ -65,191 +90,234 @@ define oradb::installdb(
     if ( $found ) {
       $continue = false
     } else {
-      notify {"oradb::installdb ${oracleHome} does not exists":}
+      notify {"oradb::installdb ${oracle_home} does not exists":}
       $continue = true
     }
   }
 
-  $execPath     = '/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:'
+  $exec_path = lookup('oradb::exec_path')
 
-  if $puppetDownloadMntPoint == undef {
-    $mountPoint     = 'puppet:///modules/oradb/'
+  if $puppet_download_mnt_point == undef {
+    $mount_point     = 'puppet:///modules/oradb/'
   } else {
-    $mountPoint     = $puppetDownloadMntPoint
+    $mount_point     = $puppet_download_mnt_point
   }
 
-  if $oraInventoryDir == undef {
-    $oraInventory = "${oracleBase}/oraInventory"
+  if $ora_inventory_dir == undef {
+    $ora_inventory = oradb::cleanpath("${oracle_base}/../oraInventory")
   } else {
-    $oraInventory = "${oraInventoryDir}/oraInventory"
+    validate_absolute_path($ora_inventory_dir)
+    $ora_inventory = "${ora_inventory_dir}/oraInventory"
   }
 
-  oradb::utils::dbstructure{"oracle structure ${version}":
-    oracle_base_home_dir => $oracleBase,
-    ora_inventory_dir    => $oraInventory,
-    os_user              => $user,
-    os_group_install     => $group_install,
-    download_dir         => $downloadDir,
+  db_directory_structure{"oracle structure ${version}_${title}":
+    ensure            => present,
+    oracle_base_dir   => $oracle_base,
+    ora_inventory_dir => $ora_inventory,
+    download_dir      => $download_dir,
+    os_user           => $user,
+    os_group          => $group_install,
   }
 
   if ( $continue ) {
 
-    if ( $zipExtract ) {
-      # In $downloadDir, will Puppet extract the ZIP files or is this a pre-extracted directory structure.
+    if ( $zip_extract ) {
+      # In $download_dir, will Puppet extract the ZIP files or is this a pre-extracted directory structure.
+
+      if ( $version in ['12.2.0.1']) {
+        $file1 =  "${file}.zip"
+        $total_files = 1
+      }
 
       if ( $version in ['11.2.0.1','12.1.0.1','12.1.0.2']) {
-        $file1 =  "${file}_1of2.zip"
-        $file2 =  "${file}_2of2.zip"
+        $file1 = "${file}_1of2.zip"
+        $file2 = "${file}_2of2.zip"
+        $total_files = 2
       }
 
       if ( $version in ['11.2.0.3','11.2.0.4']) {
-        $file1 =  "${file}_1of7.zip"
-        $file2 =  "${file}_2of7.zip"
+        $file1 = "${file}_1of7.zip"
+        $file2 = "${file}_2of7.zip"
+        $total_files = 2
       }
 
-      if $remoteFile == true {
+      if $remote_file == true {
 
-        file { "${downloadDir}/${file1}":
+        file { "${download_dir}/${file1}":
           ensure  => present,
-          source  => "${mountPoint}/${file1}",
+          source  => "${mount_point}/${file1}",
           mode    => '0775',
           owner   => $user,
           group   => $group,
-          require => Oradb::Utils::Dbstructure["oracle structure ${version}"],
-          before  => Exec["extract ${downloadDir}/${file1}"],
+          require => Db_directory_structure["oracle structure ${version}_${title}"],
+          before  => Exec["extract ${download_dir}/${file1}"],
         }
-        # db file 2 installer zip
-        file { "${downloadDir}/${file2}":
-          ensure  => present,
-          source  => "${mountPoint}/${file2}",
-          mode    => '0775',
-          owner   => $user,
-          group   => $group,
-          require => File["${downloadDir}/${file1}"],
-          before  => Exec["extract ${downloadDir}/${file2}"]
+        if ( $total_files > 1 ) {
+          # db file 2 installer zip
+          file { "${download_dir}/${file2}":
+            ensure  => present,
+            source  => "${mount_point}/${file2}",
+            mode    => '0775',
+            owner   => $user,
+            group   => $group,
+            require => File["${download_dir}/${file1}"],
+            before  => Exec["extract ${download_dir}/${file2}"]
+          }
         }
-        $source = $downloadDir
+        $source = $download_dir
       } else {
-        $source = $mountPoint
+        $source = $mount_point
       }
 
-      exec { "extract ${downloadDir}/${file1}":
-        command   => "unzip -o ${source}/${file1} -d ${downloadDir}/${file}",
+      exec { "extract ${download_dir}/${file1}":
+        command   => "unzip -o ${source}/${file1} -d ${download_dir}/${file}",
         timeout   => 0,
         logoutput => false,
-        path      => $execPath,
+        path      => $exec_path,
         user      => $user,
         group     => $group,
-        require   => Oradb::Utils::Dbstructure["oracle structure ${version}"],
+        require   => Db_directory_structure["oracle structure ${version}_${title}"],
         before    => Exec["install oracle database ${title}"],
       }
-      exec { "extract ${downloadDir}/${file2}":
-        command   => "unzip -o ${source}/${file2} -d ${downloadDir}/${file}",
-        timeout   => 0,
-        logoutput => false,
-        path      => $execPath,
-        user      => $user,
-        group     => $group,
-        require   => Exec["extract ${downloadDir}/${file1}"],
-        before    => Exec["install oracle database ${title}"],
+      if ( $total_files > 1 ) {
+        exec { "extract ${download_dir}/${file2}":
+          command   => "unzip -o ${source}/${file2} -d ${download_dir}/${file}",
+          timeout   => 0,
+          logoutput => false,
+          path      => $exec_path,
+          user      => $user,
+          group     => $group,
+          require   => Exec["extract ${download_dir}/${file1}"],
+          before    => Exec["install oracle database ${title}"],
+        }
       }
     }
 
-    oradb::utils::dborainst{"database orainst ${version}":
-      ora_inventory_dir => $oraInventory,
+    oradb::utils::dborainst{"database orainst ${version}_${title}":
+      ora_inventory_dir => $ora_inventory,
       os_group          => $group_install,
     }
 
-    if ! defined(File["${downloadDir}/db_install_${version}.rsp"]) {
-      file { "${downloadDir}/db_install_${version}.rsp":
+    if ! defined(File["${download_dir}/db_install_${version}_${title}.rsp"]) {
+      file { "${download_dir}/db_install_${version}_${title}.rsp":
         ensure  => present,
-        content => template("oradb/db_install_${version}.rsp.erb"),
+        content => epp("oradb/db_install_${version}.rsp.epp",
+                      { 'cluster_nodes'          => $cluster_nodes,
+                        'group_install'          => $group_install,
+                        'oraInventory'           => $ora_inventory,
+                        'oracle_home'            => $oracle_home,
+                        'oracle_base'            => $oracle_base,
+                        'group_oper'             => $group_oper,
+                        'group'                  => $group,
+                        'database_type'          => $database_type,
+                        'is_rack_one_install'    => $is_rack_one_install,
+                        'ee_optional_components' => $ee_optional_components,
+                        'ee_options_selection'   => $ee_options_selection }),
         mode    => '0775',
         owner   => $user,
         group   => $group,
-        require => Oradb::Utils::Dborainst["database orainst ${version}"],
+        require => [Oradb::Utils::Dborainst["database orainst ${version}_${title}"],
+                    Db_directory_structure["oracle structure ${version}_${title}"],],
       }
     }
 
     exec { "install oracle database ${title}":
-      command     => "/bin/sh -c 'unset DISPLAY;${downloadDir}/${file}/database/runInstaller -silent -waitforcompletion -ignoreSysPrereqs -ignorePrereq -responseFile ${downloadDir}/db_install_${version}.rsp'",
-      creates     => "${oracleHome}/dbs",
+      command     => "/bin/sh -c 'unset DISPLAY;${download_dir}/${file}/database/runInstaller -silent -waitforcompletion -ignoreSysPrereqs -ignorePrereq -responseFile ${download_dir}/db_install_${version}_${title}.rsp'",
+      creates     => "${oracle_home}/dbs",
       environment => ["USER=${user}","LOGNAME=${user}"],
       timeout     => 0,
       returns     => [6,0],
-      path        => $execPath,
+      path        => $exec_path,
       user        => $user,
       group       => $group_install,
-      cwd         => $oracleBase,
+      cwd         => $oracle_base,
       logoutput   => true,
-      require     => [Oradb::Utils::Dborainst["database orainst ${version}"],
-                      File["${downloadDir}/db_install_${version}.rsp"]],
+      require     => [Oradb::Utils::Dborainst["database orainst ${version}_${title}"],
+                      File["${download_dir}/db_install_${version}_${title}.rsp"]],
     }
 
-    if ( $bashProfile == true ) {
-      if ! defined(File["${userBaseDir}/${user}/.bash_profile"]) {
-        file { "${userBaseDir}/${user}/.bash_profile":
+    if ( $bash_profile == true ) {
+      if ! defined(File["${user_base_dir}/${user}/.bash_profile"]) {
+        file { "${user_base_dir}/${user}/.bash_profile":
           ensure  => present,
           # content => template('oradb/bash_profile.erb'),
-          content => regsubst(template('oradb/bash_profile.erb'), '\r\n', "\n", 'EMG'),
+          content => regsubst(epp('oradb/bash_profile.epp', { 'oracle_home' => $oracle_home,
+                                                              'oracle_base' => $oracle_base,
+                                                              'temp_dir'    => $temp_dir }), '\r\n', "\n", 'EMG'),
           mode    => '0775',
           owner   => $user,
           group   => $group,
-          require => Oradb::Utils::Dbstructure["oracle structure ${version}"],
         }
       }
     }
 
     exec { "run root.sh script ${title}":
-      command   => "${oracleHome}/root.sh",
+      command   => "${oracle_home}/root.sh",
       user      => 'root',
       group     => 'root',
-      path      => $execPath,
-      cwd       => $oracleBase,
+      path      => $exec_path,
+      cwd       => $oracle_base,
       logoutput => true,
       require   => Exec["install oracle database ${title}"],
     }
 
-    file { $oracleHome:
-      ensure  => directory,
-      recurse => false,
-      replace => false,
-      mode    => '0775',
-      owner   => $user,
-      group   => $group_install,
-      require => Exec["install oracle database ${title}","run root.sh script ${title}"],
+    if ( $remote_node != undef) {
+      # execute the scripts on the remote nodes
+      exec { "run root.sh script ${title} on ${remote_node}":
+        command   => "ssh ${remote_node} ${oracle_home}/root.sh",
+        user      => 'root',
+        group     => 'root',
+        path      => $exec_path,
+        cwd       => $oracle_base,
+        logoutput => true,
+        require   => Exec["run root.sh script ${title}"],
+      }
+    }
+
+    if !defined(File[$oracle_home]) {
+      file { $oracle_home:
+        ensure  => directory,
+        recurse => false,
+        replace => false,
+        mode    => '0775',
+        owner   => $user,
+        group   => $group_install,
+        require => Exec["install oracle database ${title}","run root.sh script ${title}"],
+      }
     }
 
     # cleanup
-    if ( $zipExtract ) {
-      exec { "remove oracle db extract folder ${title}":
-        command => "rm -rf ${downloadDir}/${file}",
-        user    => 'root',
-        group   => 'root',
-        path    => $execPath,
-        cwd     => $oracleBase,
-        require => [Exec["install oracle database ${title}"],
-                    Exec["run root.sh script ${title}"],],
-      }
+    if ( $cleanup_install_files ) {
+      if ( $zip_extract ) {
+        exec { "remove oracle db extract folder ${title}":
+          command => "rm -rf ${download_dir}/${file}",
+          user    => 'root',
+          group   => 'root',
+          path    => $exec_path,
+          cwd     => $oracle_base,
+          require => [Exec["install oracle database ${title}"],
+                      Exec["run root.sh script ${title}"],],
+          }
 
-      if ( $remoteFile == true ){
-        exec { "remove oracle db file1 ${file1} ${title}":
-          command => "rm -rf ${downloadDir}/${file1}",
-          user    => 'root',
-          group   => 'root',
-          path    => $execPath,
-          cwd     => $oracleBase,
-          require => [Exec["install oracle database ${title}"],
-                      Exec["run root.sh script ${title}"],],
-        }
-        exec { "remove oracle db file2 ${file2} ${title}":
-          command => "rm -rf ${downloadDir}/${file2}",
-          user    => 'root',
-          group   => 'root',
-          path    => $execPath,
-          cwd     => $oracleBase,
-          require => [Exec["install oracle database ${title}"],
-                      Exec["run root.sh script ${title}"],],
+        if ( $remote_file == true ){
+          exec { "remove oracle db file1 ${file1} ${title}":
+            command => "rm -rf ${download_dir}/${file1}",
+            user    => 'root',
+            group   => 'root',
+            path    => $exec_path,
+            cwd     => $oracle_base,
+            require => [Exec["install oracle database ${title}"],
+                          Exec["run root.sh script ${title}"],],
+          }
+          exec { "remove oracle db file2 ${file2} ${title}":
+            command => "rm -rf ${download_dir}/${file2}",
+            user    => 'root',
+            group   => 'root',
+            path    => $exec_path,
+            cwd     => $oracle_base,
+            require => [Exec["install oracle database ${title}"],
+                        Exec["run root.sh script ${title}"],],
+          }
         }
       }
     }

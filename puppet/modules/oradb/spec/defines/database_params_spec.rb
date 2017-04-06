@@ -4,13 +4,14 @@ describe 'oradb::database', :type => :define do
 
   describe "wrong database version" do
     let(:params){{
-                   :oracleBase              => '/oracle',
-                   :oracleHome              => '/oracle/product/11.2/db',
+                   :oracle_base              => '/oracle',
+                   :oracle_home              => '/oracle/product/11.2/db',
                    :version                 => '11.1',
                    :user                    => 'oracle',
                    :group                   => 'dba',
-                   :downloadDir             => '/install',
+                   :download_dir             => '/install',
                    :action                  => 'create',
+                   :db_domain               => 'xxxxx',
     }}
     let(:title) {'testDb_Create'}
     let(:facts) {{ :operatingsystem => 'CentOS' ,
@@ -19,42 +20,22 @@ describe 'oradb::database', :type => :define do
 
     it do
       expect { should contain_file("/install/database_testDb_Create.rsp")
-               }.to raise_error(Puppet::Error, /Unrecognized version/)
+               }.to raise_error(Puppet::Error, /expects a match for Enum/)
     end
 
   end
 
-  describe "wrong OS" do
-    let(:params){{
-                   :oracleBase              => '/oracle',
-                   :oracleHome              => '/oracle/product/11.2/db',
-                   :version                 => '11.2',
-                   :user                    => 'oracle',
-                   :group                   => 'dba',
-                   :downloadDir             => '/install',
-                   :action                  => 'create',
-    }}
-    let(:title) {'testDb_Create'}
-    let(:facts) {{ :operatingsystem => 'Windows' ,
-                   :kernel          => 'Windows',
-                   :osfamily        => 'Windows' }}
-
-    it do
-      expect { should contain_file("/install/database_testDb_Create.rsp")
-               }.to raise_error(Puppet::Error, /Unrecognized operating system/)
-    end
-
-  end
 
   describe "wrong action" do
     let(:params){{
-                   :oracleBase              => '/oracle',
-                   :oracleHome              => '/oracle/product/11.2/db',
+                   :oracle_base              => '/oracle',
+                   :oracle_home              => '/oracle/product/11.2/db',
                    :version                 => '11.2',
                    :user                    => 'oracle',
                    :group                   => 'dba',
-                   :downloadDir             => '/install',
+                   :download_dir             => '/install',
                    :action                  => 'xxxxx',
+                   :db_domain               => 'xxxxx',
     }}
     let(:title) {'testDb_Create'}
     let(:facts) {{ :operatingsystem => 'CentOS' ,
@@ -63,21 +44,21 @@ describe 'oradb::database', :type => :define do
 
     it do
       expect { should contain_file("/install/database_testDb_Create.rsp")
-               }.to raise_error(Puppet::Error, /Unrecognized database action/)
+               }.to raise_error(Puppet::Error, /expects a match for Enum/)
     end
 
   end
 
-  describe "wrong databaseType" do
+  describe "wrong database_type" do
     let(:params){{
-                   :oracleBase              => '/oracle',
-                   :oracleHome              => '/oracle/product/11.2/db',
+                   :oracle_base              => '/oracle',
+                   :oracle_home              => '/oracle/product/11.2/db',
                    :version                 => '11.2',
                    :user                    => 'oracle',
                    :group                   => 'dba',
-                   :downloadDir             => '/install',
+                   :download_dir             => '/install',
                    :action                  => 'create',
-                   :databaseType            => "XXXX",
+                   :database_type            => "XXXX",
     }}
     let(:title) {'testDb_Create'}
     let(:facts) {{ :operatingsystem => 'CentOS' ,
@@ -86,21 +67,21 @@ describe 'oradb::database', :type => :define do
 
     it do
       expect { should contain_file("/install/database_testDb_Create.rsp")
-               }.to raise_error(Puppet::Error, /Unrecognized databaseType/)
+               }.to raise_error(Puppet::Error, /for Enum/)
     end
 
   end
 
-  describe "wrong emConfiguration" do
+  describe "wrong em_configuration" do
     let(:params){{
-                   :oracleBase              => '/oracle',
-                   :oracleHome              => '/oracle/product/11.2/db',
+                   :oracle_base              => '/oracle',
+                   :oracle_home              => '/oracle/product/11.2/db',
                    :version                 => '11.2',
                    :user                    => 'oracle',
                    :group                   => 'dba',
-                   :downloadDir             => '/install',
+                   :download_dir             => '/install',
                    :action                  => 'create',
-                   :emConfiguration         => "XXXX",
+                   :em_configuration         => "XXXX",
     }}
     let(:title) {'testDb_Create'}
     let(:facts) {{ :operatingsystem => 'CentOS' ,
@@ -109,21 +90,21 @@ describe 'oradb::database', :type => :define do
 
     it do
       expect { should contain_file("/install/database_testDb_Create.rsp")
-               }.to raise_error(Puppet::Error, /Unrecognized emConfiguration/)
+               }.to raise_error(Puppet::Error, /match for Enum/)
     end
 
   end
 
-  describe "wrong storageType" do
+  describe "wrong storage_type" do
     let(:params){{
-                   :oracleBase              => '/oracle',
-                   :oracleHome              => '/oracle/product/11.2/db',
+                   :oracle_base              => '/oracle',
+                   :oracle_home              => '/oracle/product/11.2/db',
                    :version                 => '11.2',
                    :user                    => 'oracle',
                    :group                   => 'dba',
-                   :downloadDir             => '/install',
+                   :download_dir             => '/install',
                    :action                  => 'create',
-                   :storageType             => "XXXX",
+                   :storage_type             => "XXXX",
     }}
     let(:title) {'testDb_Create'}
     let(:facts) {{ :operatingsystem => 'CentOS' ,
@@ -132,21 +113,22 @@ describe 'oradb::database', :type => :define do
 
     it do
       expect { should contain_file("/install/database_testDb_Create.rsp")
-               }.to raise_error(Puppet::Error, /Unrecognized storageType/)
+               }.to raise_error(Puppet::Error, /expects a match for Enum/)
     end
 
   end
 
   describe "container database on 11.2" do
     let(:params){{
-                   :oracleBase              => '/oracle',
-                   :oracleHome              => '/oracle/product/11.2/db',
+                   :oracle_base              => '/oracle',
+                   :oracle_home              => '/oracle/product/11.2/db',
                    :version                 => '11.2',
                    :user                    => 'oracle',
                    :group                   => 'dba',
-                   :downloadDir             => '/install',
+                   :download_dir             => '/install',
                    :action                  => 'create',
-                   :containerDatabase       => true,
+                   :container_database       => true,
+                   :db_domain               => 'a'
     }}
     let(:title) {'testDb_Create'}
     let(:facts) {{ :operatingsystem => 'CentOS' ,
@@ -168,29 +150,30 @@ describe 'oradb::database', :type => :define do
                    :kernel          => 'Linux',
                    :osfamily        => 'RedHat' }}
     let(:base_params) {{
-                         :oracleBase              => '/oracle',
-                         :oracleHome              => '/oracle/product/11.2/db',
+                         :oracle_base              => '/oracle',
+                         :oracle_home              => '/oracle/product/11.2/db',
                          :version                 => '11.2',
                          :user                    => 'oracle',
                          :group                   => 'dba',
-                         :downloadDir             => '/install',
-                         :action                  => 'create'
+                         :download_dir             => '/install',
+                         :action                  => 'create',
+                         :db_domain               => 'a'
     }}
 
     describe "specified as a String" do
 
-      let(:params) { base_params.merge(:initParams=> "a=1,b=2") }
+      let(:params) { base_params.merge(:init_params=> "a=1,b=2") }
 
       it "should pass" do
         expect { should contain_file("/install/database_testDb_Create.rsp")
-                 }.not_to raise_error()
+                 }.to raise_error(Puppet::Error, /expects a Hash value/)
       end
 
     end
 
     describe "specified as a Hash" do
 
-      let(:params) { base_params.merge!(:initParams=> {'a' => 'a', 'b' => 'b'}) }
+      let(:params) { base_params.merge!(:init_params=> {'a' => 'a', 'b' => 'b'}) }
 
       it "should fail" do
         expect { should contain_file("/install/database_testDb_Create.rsp")
@@ -200,11 +183,11 @@ describe 'oradb::database', :type => :define do
 
     describe "specified as an Array" do
 
-      let(:params) { base_params.merge(:initParams=> [1,2,3,4,5]) }
+      let(:params) { base_params.merge(:init_params=> [1,2,3,4,5]) }
 
       it "should fail" do
         expect { should contain_file("/install/database_testDb_Create.rsp")
-                 }.to raise_error(Puppet::Error, /initParams only supports a String or a Hash as value type/)
+                 }.to raise_error(Puppet::Error, /expects a Hash value/)
       end
 
     end

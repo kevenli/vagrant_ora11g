@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="oradb::cleanpath With invalid parameters with non string parameter" tests="3" time="0.216207" failures="0" errors="0" skipped="0" timestamp="2017-03-29T22:26:10+02:00">
+  <testcase name="oradb::cleanpath With invalid parameters with non string parameter should run oradb::cleanpath([&quot;a&quot;]) and raise an ArgumentError with the message matching /expects a String value/" time="0.071351">
+  </testcase>
+  <testcase name="oradb::cleanpath With invalid parameters with non string parameter should run oradb::cleanpath(false) and raise an ArgumentError with the message matching /expects a String value/" time="0.075975">
+  </testcase>
+  <testcase name="oradb::cleanpath With invalid parameters with non string parameter should run oradb::cleanpath(42) and raise an ArgumentError with the message matching /expects a String value/" time="0.067375">
+  </testcase>
+</testsuite>

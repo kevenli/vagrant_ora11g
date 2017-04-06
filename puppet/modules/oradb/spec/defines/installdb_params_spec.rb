@@ -6,17 +6,17 @@ describe 'oradb::installdb', :type => :define do
     let(:params){{
           :version                 => '10.2.0.4',
           :file                    => 'linuxamd64_10gR2_database',
-          :databaseType            => 'SE',
-          :oracleBase              => '/oracle',
-          :oracleHome              => '/oracle/product/10.2/db',
+          :database_type            => 'SE',
+          :oracle_base              => '/oracle',
+          :oracle_home              => '/oracle/product/10.2/db',
           :user                    => 'oracle',
           :group                   => 'dba',
           :group_install           => 'oinstall',
           :group_oper              => 'oper',
-          :remoteFile              => false,
-          :zipExtract              => false,
-          :downloadDir             => '/install',
-          :puppetDownloadMntPoint  => '/software',
+          :remote_file              => false,
+          :zip_extract              => false,
+          :download_dir             => '/install',
+          :puppet_download_mnt_point  => '/software',
                 }}
     let(:title) {'10.2.0.4_Linux-x86-64'}
     let(:facts) {{ :operatingsystem => 'CentOS' ,
@@ -30,49 +30,22 @@ describe 'oradb::installdb', :type => :define do
 
   end
 
-  describe "wrong O.S." do
-    let(:params){{
-          :version                 => '11.2.0.4',
-          :file                    => 'linuxamd64_11gR2_database',
-          :databaseType            => 'SE',
-          :oracleBase              => '/oracle',
-          :oracleHome              => '/oracle/product/11.2/db',
-          :user                    => 'oracle',
-          :group                   => 'dba',
-          :group_install           => 'oinstall',
-          :group_oper              => 'oper',
-          :remoteFile              => false,
-          :zipExtract              => false,
-          :downloadDir             => '/install',
-          :puppetDownloadMntPoint  => '/software',
-                }}
-    let(:title) {'11.2.0.4_Linux-x86-64'}
-    let(:facts) {{ :operatingsystem => 'Windows' ,
-                   :kernel          => 'Windows',
-                   :osfamily        => 'Windows' }}
-
-    it do
-      expect { should contain_notify("oradb::installdb /oracle/product/11.2/db does not exists")
-             }.to raise_error(Puppet::Error, /Unrecognized operating system, please use it on a Linux or SunOS host/)
-    end
-
-  end
 
   describe "wrong db type" do
     let(:params){{
           :version                 => '11.2.0.4',
           :file                    => 'linuxamd64_11gR2_database',
-          :databaseType            => 'XX',
-          :oracleBase              => '/oracle',
-          :oracleHome              => '/oracle/product/11.2/db',
+          :database_type            => 'XX',
+          :oracle_base              => '/oracle',
+          :oracle_home              => '/oracle/product/11.2/db',
           :user                    => 'oracle',
           :group                   => 'dba',
           :group_install           => 'oinstall',
           :group_oper              => 'oper',
-          :remoteFile              => false,
-          :zipExtract              => false,
-          :downloadDir             => '/install',
-          :puppetDownloadMntPoint  => '/software',
+          :remote_file              => false,
+          :zip_extract              => false,
+          :download_dir             => '/install',
+          :puppet_download_mnt_point  => '/software',
                 }}
     let(:title) {'11.2.0.4_Linux-x86-64'}
     let(:facts) {{ :operatingsystem => 'CentOS' ,
@@ -86,20 +59,20 @@ describe 'oradb::installdb', :type => :define do
 
   end
 
-  describe "oracleBase error" do
+  describe "oracle_base error" do
     let(:params){{
           :version                 => '11.2.0.4',
           :file                    => 'linuxamd64_11gR2_database',
-          :databaseType            => 'SE',
-          :oracleHome              => '/oracle/product/11.2/db',
+          :database_type            => 'SE',
+          :oracle_home              => '/oracle/product/11.2/db',
           :user                    => 'oracle',
           :group                   => 'dba',
           :group_install           => 'oinstall',
           :group_oper              => 'oper',
-          :remoteFile              => false,
-          :zipExtract              => false,
-          :downloadDir             => '/install',
-          :puppetDownloadMntPoint  => '/software',
+          :remote_file              => false,
+          :zip_extract              => false,
+          :download_dir             => '/install',
+          :puppet_download_mnt_point  => '/software',
                 }}
     let(:title) {'11.2.0.4_Linux-x86-64'}
     let(:facts) {{ :operatingsystem => 'CentOS' ,
@@ -108,26 +81,26 @@ describe 'oradb::installdb', :type => :define do
 
     it do
       expect { should contain_notify("oradb::installdb /oracle/product/11.2/db does not exists")
-             }.to raise_error(Puppet::Error, /You must specify an oracleBase/)
+             }.to raise_error(Puppet::Error, /expects a String value, got Undef/)
     end
 
   end
 
-  describe "oracleBase error 2" do
+  describe "oracle_base error 2" do
     let(:params){{
           :version                 => '11.2.0.4',
           :file                    => 'linuxamd64_11gR2_database',
-          :databaseType            => 'SE',
-          :oracleBase              => 123,
-          :oracleHome              => '/oracle/product/11.2/db',
+          :database_type            => 'SE',
+          :oracle_base              => 123,
+          :oracle_home              => '/oracle/product/11.2/db',
           :user                    => 'oracle',
           :group                   => 'dba',
           :group_install           => 'oinstall',
           :group_oper              => 'oper',
-          :remoteFile              => false,
-          :zipExtract              => false,
-          :downloadDir             => '/install',
-          :puppetDownloadMntPoint  => '/software',
+          :remote_file              => false,
+          :zip_extract              => false,
+          :download_dir             => '/install',
+          :puppet_download_mnt_point  => '/software',
                 }}
     let(:title) {'11.2.0.4_Linux-x86-64'}
     let(:facts) {{ :operatingsystem => 'CentOS' ,
@@ -136,25 +109,25 @@ describe 'oradb::installdb', :type => :define do
 
     it do
       expect { should contain_notify("oradb::installdb /oracle/product/11.2/db does not exists")
-             }.to raise_error(Puppet::Error, /You must specify an oracleBase/)
+             }.to raise_error(Puppet::Error, /expects a String value, got Integer/)
     end
 
   end
 
-  describe "oracleHome error" do
+  describe "oracle_home error" do
     let(:params){{
           :version                 => '11.2.0.4',
           :file                    => 'linuxamd64_11gR2_database',
-          :databaseType            => 'SE',
-          :oracleBase              => '/oracle',
+          :database_type            => 'SE',
+          :oracle_base              => '/oracle',
           :user                    => 'oracle',
           :group                   => 'dba',
           :group_install           => 'oinstall',
           :group_oper              => 'oper',
-          :remoteFile              => false,
-          :zipExtract              => false,
-          :downloadDir             => '/install',
-          :puppetDownloadMntPoint  => '/software',
+          :remote_file              => false,
+          :zip_extract              => false,
+          :download_dir             => '/install',
+          :puppet_download_mnt_point  => '/software',
                 }}
     let(:title) {'11.2.0.4_Linux-x86-64'}
     let(:facts) {{ :operatingsystem => 'CentOS' ,
@@ -163,27 +136,27 @@ describe 'oradb::installdb', :type => :define do
 
     it do
       expect { should contain_notify("oradb::installdb /oracle/product/11.2/db does not exists")
-             }.to raise_error(Puppet::Error, /You must specify an oracleHome/)
+             }.to raise_error(Puppet::Error, /expects a String value, got Undef/)
     end
 
   end
 
-  describe "oracleHome error 2" do
+  describe "oracle_home error 2" do
     let(:params){{
           :version                 => '11.2.0.4',
           :file                    => 'linuxamd64_11gR2_database',
-          :databaseType            => 'SE',
-          :oracleBase              => 123,
-          :oracleBase              => '/oracle',
-          :oracleHome              => 123,
+          :database_type            => 'SE',
+          :oracle_base              => 123,
+          :oracle_base              => '/oracle',
+          :oracle_home              => 123,
           :user                    => 'oracle',
           :group                   => 'dba',
           :group_install           => 'oinstall',
           :group_oper              => 'oper',
-          :remoteFile              => false,
-          :zipExtract              => false,
-          :downloadDir             => '/install',
-          :puppetDownloadMntPoint  => '/software',
+          :remote_file              => false,
+          :zip_extract              => false,
+          :download_dir             => '/install',
+          :puppet_download_mnt_point  => '/software',
                 }}
     let(:title) {'11.2.0.4_Linux-x86-64'}
     let(:facts) {{ :operatingsystem => 'CentOS' ,
@@ -192,26 +165,26 @@ describe 'oradb::installdb', :type => :define do
 
     it do
       expect { should contain_notify("oradb::installdb /oracle/product/11.2/db does not exists")
-             }.to raise_error(Puppet::Error, /You must specify an oracleHome/)
+             }.to raise_error(Puppet::Error, /expects a String value, got Integer/)
     end
 
   end
 
-  describe "oracleBase and oracleHome error" do
+  describe "oracle_base and oracle_home error" do
     let(:params){{
           :version                 => '11.2.0.4',
           :file                    => 'linuxamd64_11gR2_database',
-          :databaseType            => 'SE',
-          :oracleBase              => '/oraclexxxx',
-          :oracleHome              => '/oracle/product/11.2/db',
+          :database_type            => 'SE',
+          :oracle_base              => '/oraclexxxx',
+          :oracle_home              => '/oracle/product/11.2/db',
           :user                    => 'oracle',
           :group                   => 'dba',
           :group_install           => 'oinstall',
           :group_oper              => 'oper',
-          :remoteFile              => false,
-          :zipExtract              => false,
-          :downloadDir             => '/install',
-          :puppetDownloadMntPoint  => '/software',
+          :remote_file              => false,
+          :zip_extract              => false,
+          :download_dir             => '/install',
+          :puppet_download_mnt_point  => '/software',
                 }}
     let(:title) {'11.2.0.4_Linux-x86-64'}
     let(:facts) {{ :operatingsystem => 'CentOS' ,
@@ -220,7 +193,7 @@ describe 'oradb::installdb', :type => :define do
 
     it do
       expect { should contain_notify("oradb::installdb /oracle/product/11.2/db does not exists")
-             }.to raise_error(Puppet::Error, /oracleHome folder should be under the oracleBase folder/)
+             }.to raise_error(Puppet::Error, /oracle_home folder should be under the oracle_base folder/)
     end
 
   end

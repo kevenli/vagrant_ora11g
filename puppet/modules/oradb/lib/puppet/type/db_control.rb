@@ -1,24 +1,31 @@
 module Puppet
-  newtype(:db_control) do
+  Type::newtype(:db_control) do
     desc 'control the database instance state like running,stop,restart'
 
     newproperty(:ensure) do
       desc 'Whether to do something.'
 
       newvalue(:start, :event => :instance_running) do
-        unless :refreshonly == true
+        unless resource[:refreshonly] == :true
           provider.start
         end
       end
 
       newvalue(:stop, :event => :instance_stop) do
-        unless :refreshonly == true
+        unless resource[:refreshonly] == :true
           provider.stop
         end
       end
 
+      newvalue(:mount, :event => :instance_running) do
+        unless resource[:refreshonly] == :true
+          provider.mount
+        end
+      end
+    
       aliasvalue(:running, :start)
       aliasvalue(:abort, :stop)
+      aliasvalue(:stopped, :stop)
 
       def retrieve
         provider.status
@@ -47,6 +54,16 @@ module Puppet
       desc <<-EOT
         The database instance name.
       EOT
+    end
+
+    newparam(:db_type) do
+      desc <<-EOT
+        The type of instance.
+      EOT
+
+      defaultto(:database)
+      newvalues(:database, :asm)
+      aliasvalue(:grid, :asm)
     end
 
     newparam(:oracle_product_home_dir) do

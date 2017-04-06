@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="oradb::cleanpath With invalid parameters with wrong number of parameters" tests="2" time="0.131578" failures="0" errors="0" skipped="0" timestamp="2017-03-29T22:26:10+02:00">
+  <testcase name="oradb::cleanpath With invalid parameters with wrong number of parameters should run oradb::cleanpath() and raise an ArgumentError with the message matching /expects 1 argument/" time="0.05835">
+  </testcase>
+  <testcase name="oradb::cleanpath With invalid parameters with wrong number of parameters should run oradb::cleanpath(&quot;a&quot;, &quot;b&quot;) and raise an ArgumentError with the message matching /expects 1 argument/" time="0.072566">
+  </testcase>
+</testsuite>
