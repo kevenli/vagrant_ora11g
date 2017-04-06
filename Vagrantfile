@@ -20,7 +20,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
 
     oradb.vm.synced_folder ".", "/vagrant", :mount_options => ["dmode=777","fmode=777"]
-    #oradb.vm.synced_folder "/Users/edwin/software", "/software"
 
     oradb.vm.provider :vmware_fusion do |vb|
       vb.vmx["numvcpus"] = "1"
@@ -30,11 +29,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     oradb.vm.provider :virtualbox do |vb|
       vb.customize ["modifyvm"     , :id, "--memory", "2000"]
       #vb.customize ["modifyvm"     , :id, "--name"  , "oradb"]
-      #vb.name = "oradb"
     end
+    
+    oradb.vm.provision :shell, :inline => "rpm -ivh https://yum.puppetlabs.com/puppetlabs-release-pc1-el-6.noarch.rpm"
+    oradb.vm.provision :shell, :inline => "yum -y install puppet"
+    oradb.vm.provision :shell, :inline => "ln -s /opt/puppetlabs/bin/puppet /usr/bin/puppet"
 
 
-    oradb.vm.provision :shell, :inline => "ln -sf /vagrant/puppet/hiera.yaml /etc/puppet/hiera.yaml"
+    #oradb.vm.provision :shell, :inline => "ln -sf /vagrant/puppet/hiera.yaml /etc/puppet/hiera.yaml"
 
     oradb.vm.provision :puppet do |puppet|
       puppet.manifests_path    = "puppet/manifests"
